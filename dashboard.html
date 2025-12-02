@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cricket Play - Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0f24;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+        .nav {
+            background: #111a3a;
+            padding: 12px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .card {
+            background: #132044;
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 12px;
+            text-align: left;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #0f62fe;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .match {
+            padding: 10px;
+            background: #1c2a52;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="nav">🏏 CricketPlay Dashboard</div>
+
+<h2 id="welcome"></h2>
+<p id="balance">Coins: ...</p>
+
+<div class="card">
+    <h3>➕ Add Demo Coins</h3>
+    <button onclick="addCoins()">Add 100 Coins</button>
+</div>
+
+<div class="card">
+    <h3>Upcoming Matches (Demo)</h3>
+
+    <div class="match">India vs Australia – 8PM</div>
+    <div class="match">England vs Pakistan – Tomorrow</div>
+</div>
+
+<div class="card">
+    <button onclick="logout()" style="background:red">Logout</button>
+</div>
+
+<script>
+    // Load user email from localStorage
+    let email = localStorage.getItem("cp_email");
+    let coins = localStorage.getItem("cp_coins") || 1000;
+
+    document.getElementById("welcome").innerText = "Welcome, " + email;
+    document.getElementById("balance").innerText = "Coins: " + coins;
+
+    function addCoins() {
+        coins = Number(coins) + 100;
+        localStorage.setItem("cp_coins", coins);
+        document.getElementById("balance").innerText = "Coins: " + coins;
+        alert("100 coins added!");
+    }
+
+    function logout() {
+        localStorage.removeItem("cp_email");
+        localStorage.removeItem("cp_coins");
+        window.location.href = "index.html";
+    }
+</script>
+
+</body>
+</html>
