@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Email Verification - CricketPlay</title>
+  <style>
+    body { font-family: Arial; background:#f2f2f2; padding:20px; }
+    .card {
+      max-width:400px; margin: auto; padding:20px;
+      background:white; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width:100%; padding:10px; margin:10px 0; font-size:16px;
+    }
+    .log { color:#0a0; font-size:14px; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>Email Verification</h2>
+
+    <p>Enter the verification code sent to your email</p>
+
+    <input id="v_code" placeholder="Verification code">
+    <button onclick="verifyNow()">Verify Email</button>
+
+    <div id="verify_log" class="log"></div>
+  </div>
+
+<script>
+function verifyNow() {
+  let code = document.getElementById("v_code").value;
+
+  if (!code) {
+    document.getElementById("verify_log").innerHTML = "Enter code";
+    return;
+  }
+
+  document.getElementById("verify_log").innerHTML =
+    "✔ Verified! Redirecting...";
+
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 1500);
+}
+</script>
+
+</body>
+</html>
