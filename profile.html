@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile - CricketPlay</title>
+  <style>
+    :root{--bg:#f3f6fb;--card:#fff;--accent:#0b82ff;--muted:#666}
+    body{margin:0;font-family:Arial;background:var(--bg);color:#111}
+    .wrap{max-width:920px;margin:18px auto;padding:12px}
+    .card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 8px 18px rgba(10,20,40,0.06)}
+    h1,h2{margin:0 0 8px 0}
+    label{font-size:14px;color:var(--muted)}
+    input,textarea,button,select{width:100%;padding:10px;margin-top:8px;border:1px solid #e6e9ef;border-radius:8px;box-sizing:border-box}
+    button{background:var(--accent);color:#fff;border:none;cursor:pointer}
+    .row{display:flex;gap:8px}
+    .row>*>*{flex:1}
+    .small{font-size:13px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .center{text-align:center}
+    a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Profile</h1>
+    <p class="small">Manage your account, PAN and verification (demo).</p>
+
+    <div class="card" id="profile_card">
+      <h2 id="name_title">Welcome</h2>
+      <div class="small">Email: <span id="email_text">—</span></div>
+      <div class="small">Phone: <span id="phone_text">—</span></div>
+      <div style="margin-top:8px">Coins: <strong id="coins_text">0</strong></div>
+      <div style="margin-top:8px">PAN verified: <span id="pan_text">No</span></div>
+      <div style="margin-top:10px">
+        <button onclick="goDashboard()">Go to Dashboard</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Edit profile</h2>
+      <label>Display name</label>
+      <input id="edit_name" placeholder="Your display name">
+      <label>Phone</label>
+      <input id="edit_phone" placeholder="+9198...">
+      <label>Update email (only for demo)</label>
+      <input id="edit_email" placeholder="email@gmail.com">
+      <div style="margin-top:8px">
+        <button onclick="saveProfile()">Save profile</button>
+      </div>
+      <div id="save_log" class="small muted"></div>
+    </div>
+
+    <div class="card">
+      <h2>PAN (demo upload)</h2>
+      <p class="small">Upload masked PAN for demo. (In production use real KYC provider.)</p>
+      <input id="pan_input" placeholder="ABCDE1234F (demo)">
+      <button onclick="uploadPan()">Upload PAN</button>
+      <div id="pan_log" class="small muted"></div>
+    </div>
+
+    <div class="card">
+      <h2>Security</h2>
+      <div style="display:flex;gap:8px">
+        <button onclick="logout()">Logout</button>
+        <button style="background:#444" onclick="clearLocal()">Clear demo storage</button>
+      </div>
+    </div>
+
+    <div class="center small muted" style="margin-top:18px">
+      This is a demo UI. Not real-money. Learn more at <a href="index.html">Home</a>.
+    </div>
+  </div>
+
+<script>
+/* If you later connect real backend, change API_BASE */
+const API_BASE = "https://your-backend-url-here"; // CHANGE when backend is running
+
+/* Simple demo storage using localStorage */
+function loadProfile(){
+  const email = localStorage.getItem("cp_email") || "";
+  const phone = localStorage.getItem("cp_phone") || "";
+  const name = localStorage.getItem("cp_name") || (email ? email.split("@")[0] : "Guest");
+  const coins = localStorage.getItem("cp_coins") || 1000;
+  const pan_mask = localStorage.getItem("cp_pan_mask") || "";
+  const pan_verified = localStorage.getItem("cp_pan_verified") === "true";
+
+  document.getElementById("name_title").innerText = name;
+  document.getElementById("email_text").innerText = email || "—";
+  document.getElementById("phone_text").innerText = phone || "—";
+  document.getElementById("coins_text").innerText = coins;
+  document.getElementById("pan_text").innerText = pan_verified ? ("Yes — " + pan_mask) : "No";
+  document.getElementById("edit_name").value = name;
+  document.getElementById("edit_phone").value = phone;
+  document.getElementById("edit_email").value = email;
+}
+
+function saveProfile(){
+  const name = document.getElementById("edit_name").value.trim();
+  const phone = document.getElementById("edit_phone").value.trim();
+  const email = document.getElementById("edit_email").value.trim();
+
+  if(email && !email.includes("@")) {
+    document.getElementById("save_log").innerText = "ভুল: সঠিক ইমেইল দিন";
+    return;
+  }
+  if(email) localStorage.setItem("cp_email", email);
+  if(phone) localStorage.setItem("cp_phone", phone);
+  if(name) localStorage.setItem("cp_name", name);
+
+  document.getElementById("save_log").innerText = "Saved (demo).";
+  loadProfile();
+}
+
+/* Mask PAN: keep first 2 and last 2 */
+function maskPan(s){
+  s = (s||"").toUpperCase().replace(/\s+/g,"");
+  if(s.length < 6) return "****";
+  return s.slice(0,2) + "*".repeat(Math.max(0, s.length-4)) + s.slice(-2);
+}
+
+function uploadPan(){
+  const pan = document.getElementById("pan_input").value.trim();
+  if(!pan){ document.getElementById("pan_log").innerText = "PAN দিন"; return; }
+  if(pan.length < 6){ document.getElementById("pan_log").innerText = "PAN অনুপযুক্ত"; return; }
+  const masked = maskPan(pan);
+  // Demo: mark verified locally (in real app call /upload_pan endpoint)
+  localStorage.setItem("cp_pan_mask", masked);
+  localStorage.setItem("cp_pan_verified", "true");
+  document.getElementById("pan_log").innerText = "PAN আপলোড করা হয়েছে (demo).";
+  loadProfile();
+}
+
+/* Demo: logout / clear */
+function logout(){
+  // keep profile? here clear session-like keys
+  localStorage.removeItem("cp_email");
+  localStorage.removeItem("cp_name");
+  localStorage.removeItem("cp_phone");
+  // keep coins for demo optional — we remove them too
+  localStorage.removeItem("cp_coins");
+  window.location.href = "index.html";
+}
+function clearLocal(){
+  localStorage.clear();
+  loadProfile();
+}
+
+/* Go to dashboard */
+function goDashboard(){ window.location.href = "dashboard.html"; }
+
+/* init */
+document.addEventListener("DOMContentLoaded", ()=>{
+  // ensure some demo defaults
+  if(!localStorage.getItem("cp_coins")) localStorage.setItem("cp_coins", 1000);
+  loadProfile();
+});
+</script>
+</body>
+</html>
